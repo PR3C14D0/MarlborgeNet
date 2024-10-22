@@ -12,6 +12,7 @@
 #include "Client.h"
 
 #define DEFAULT_PORT 60120
+#define CNC_PORT 60069
 #define MAX_CONN 2048
 
 std::vector<std::shared_ptr<Client>> g_clients;
@@ -24,6 +25,8 @@ void ClientThread(std::shared_ptr<Client> client);
 SSL_CTX* SSLCreateCtx();
 
 typedef unsigned char UCHAR;
+
+void InitCnC();
 
 int main() {
 	std::cout << "MarlborgeServer v0.1" << std::endl;
@@ -92,6 +95,8 @@ int main() {
 	listen(server, MAX_CONN);
 	std::cout << "[INFO] Listening on port " << nPort << " for clients" << std::endl;
 
+	InitCnC();
+
 	while (!g_bQuit) {
 		SOCKADDR_IN clientIn = { };
 		int nClientSize = sizeof(clientIn);
@@ -119,6 +124,19 @@ int main() {
 	}
 
 	return 0;
+}
+
+void InitCnC() {
+	SOCKET cnc = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+	SOCKADDR_IN saIn = { };
+	saIn.sin_family = AF_INET;
+	saIn.sin_port = htons(CNC_PORT);
+	inet_pton(AF_INET, "0.0.0.0", (void*)&saIn.sin_addr.s_addr);
+
+	bind(cnc, (SOCKADDR*)&saIn, sizeof(saIn));
+
+
 }
 
 void ClientThread(std::shared_ptr<Client> client) {
