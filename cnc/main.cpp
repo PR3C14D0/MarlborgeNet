@@ -13,6 +13,7 @@
 void PrintBanner();
 
 enum COMMAND {
+	CLEAR = 0x0F,
 	EXIT = 0xFF,
 	UNKNOWN = 0xF0
 };
@@ -33,7 +34,9 @@ int main() {
 
 	std::signal(SIGINT, SignalHandler);
 
-	SOCKET server = socket();
+	SOCKET server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+
 
 	while (!g_bQuit) {
 		std::cout << YELLOW << "\tpreciado > " << RESET;
@@ -43,20 +46,27 @@ int main() {
 		COMMAND cmd = TranslateCommand(input);
 
 		switch (cmd) {
+		case CLEAR:
+			PrintBanner();
+			break;
 		case EXIT:
 			std::cout << BOLDBLUE << "\tDisconnecting..." << RESET << std::endl;
 			g_bQuit = true;
 			break;
 		case UNKNOWN:
+			std::cout << BOLDRED << "\tInvalid command " << input << std::endl;
+			break;
 		default:
 			break;
 		}
+		std::cout << std::endl;
 	}
 	return 0;
 }
 
 void PrintBanner() {
-	std::cout << "\033]0;Marlborge Network\007";
+	std::cout << "\033[2J\033[1;1H";
+	std::cout << "\033]0;Marlborge Network | Expires in: 999 days\007";
 	std::cout << RED << u8R"(
 			⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀
 			⢻⢷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⡇
@@ -100,6 +110,10 @@ void SignalHandler(int signal) {
 
 COMMAND TranslateCommand(std::string command) {
 	COMMAND cmd = COMMAND::UNKNOWN;
+
+	if (command == "clear") {
+		cmd = COMMAND::CLEAR;
+	}
 
 	if (command == "exit") {
 		cmd = COMMAND::EXIT;
