@@ -176,6 +176,8 @@ DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
 
+*.pem
+
 # Click-Once directory
 publish/
 
